@@ -4,6 +4,6 @@ import { signUpUser, logInUser } from '../controllers/authController.js';
 const router = express.Router();
 
 router.post('/signUp', signUpUser);
-router.post('/login', logInUser);
+router.post('/logIn', logInUser);
 
 export default router;
