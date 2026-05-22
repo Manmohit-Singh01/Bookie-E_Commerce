@@ -2,6 +2,7 @@ import user from '../models/user.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+//Sign up user
 export const signUpUser = async (req, res) => {
     try {
         const {name, email, password} = req.body;
@@ -18,6 +19,7 @@ export const signUpUser = async (req, res) => {
     }
 };
 
+//login user
 export const logInUser = async (req, res) => {
     try {
         const {email, password} = req.body;
@@ -33,9 +35,15 @@ export const logInUser = async (req, res) => {
         }
 
         // Generate JWT token
-        const token = jwt.sign({userId: existingUser._id}, process.env.JWT_SECRET, {expiresIn: '7d'});
+        const token = jwt.sign({userId: existingUser._id}, 
+                                process.env.JWT_SECRET,
+                                {expiresIn: '7d'}
+                            );
 
-        res.status(200).json({message: "Login successful", token, user: {name: existingUser.name, email: existingUser.email}});
+        res.status(200).json({message: "Login successful", 
+                            token, 
+                            user: {name: existingUser.name, email: existingUser.email}}
+                        );
     } catch (error) {
         res.status(500).json({message: "Server error"});
     }
