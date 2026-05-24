@@ -25,6 +25,17 @@ export const getProducts = async (req, res) => {
 // Get a single product by ID
 export const getProductById = async (req, res) => {
     try {
+        const {search, category} = req.query;
+
+        let filter = {};
+        if (search) {
+            filter.title = { $regex: search, $options: "i" };
+        }
+        
+        if (category) {
+            filter.category = category;
+        }
+
         const product = await productModel.findById(req.params.id);
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
