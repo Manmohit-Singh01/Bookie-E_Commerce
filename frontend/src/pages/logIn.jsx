@@ -24,6 +24,8 @@ export default function logIn() {
     try {
       const response = await api.post("/auth/logIn", formData);
 
+      //save token and userId to localStorage
+      localStorage.setItem("userId", response.data.userId);
       localStorage.setItem("token", response.data.token);
 
       setMsg(response.data.message);
