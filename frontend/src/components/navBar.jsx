@@ -51,7 +51,7 @@ export default function NavBar() {
                     !userId?(
                         <>
                             <Link to="/login" className="nav-link">Login</Link>
-                            <Link to="/register" className="nav-link">Sign Up</Link>
+                            <Link to="/signup" className="nav-link">Sign Up</Link>
                         </>
                     ) : (
                         <button onClick={logout} className="nav-link">Logout</button>

@@ -3,23 +3,25 @@ import Cart from '../models/Cart.js';
 //add item to cart
 export const addToCart = async (req, res) => {
     try {
-        const { userId, productId } = req.body;
-        let cart = await Cart.findOne({ userId });
+        let item = null;
 
         if (!cart) {
-            cart = await Cart.create({ userId, items: [ { productId, quantity: 1 } ] });
-        }
-        else {
-            const item = cart.items.find(
+            cart = await Cart.create({
+                userId,
+                items: [{ productId, quantity: 1 }]
+            });
+        } else {
+            item = cart.items.find(
                 item => item.productId.toString() === productId
             );
-        }
 
-        if (item) {
-            item.quantity += 1;
-        }
-        else {
-            cart.items.push({ productId, quantity: 1 });
+            if (item) {
+                item.quantity += 1;
+            } else {
+                cart.items.push({ productId, quantity: 1 });
+            }
+
+            await cart.save();
         }
 
         await cart.save();
@@ -103,3 +105,4 @@ export const getCart = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 }
+

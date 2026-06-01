@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import api from "../api/axios";
 
-export default function logIn() {
+export default function LogIn() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",

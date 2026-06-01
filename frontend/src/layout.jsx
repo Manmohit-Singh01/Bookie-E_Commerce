@@ -1,8 +1,7 @@
 import {Outlet} from "react-router";
 import NavBar from "./components/navBar.jsx";
 
-
-function Layout() {
+export default function Layout() {
     return (
         <div>
             <NavBar />

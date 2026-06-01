@@ -10,7 +10,7 @@ export default function Cart() {
         if (!userId) return setCartItems([]);
         try {
             const response = await api.get(`/cart/${userId}`);
-            setCartItems(response.data.items);
+            setCartItems(response.data.cart.items);
         }
         catch (err) {
             console.error(err);
@@ -36,15 +36,21 @@ export default function Cart() {
 
     
     const updateQuantity = async (productId, quantity) => {
-        if (quantity < 1) 
+        if (quantity < 1) {
             await removeFromCart(productId);
             return;
+        }
+
         try {
-            await api.post('/cart/update', { userId, productId, quantity });
+            await api.post('/cart/update', {
+                userId,
+                productId,
+                quantity
+            });
+
             loadCartItems();
             window.dispatchEvent(new Event('cartUpdated'));
-        }
-        catch (err) {
+        } catch (err) {
             console.error(err);
         }
     };
