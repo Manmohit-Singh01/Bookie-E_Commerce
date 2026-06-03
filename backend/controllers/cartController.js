@@ -3,15 +3,14 @@ import Cart from '../models/Cart.js';
 //add item to cart
 export const addToCart = async (req, res) => {
     try {
-        let item = null;
+        const { userId, productId } = req.body;
+
+        let cart = await Cart.findOne({ userId });
 
         if (!cart) {
-            cart = await Cart.create({
-                userId,
-                items: [{ productId, quantity: 1 }]
-            });
+            cart = new Cart({ userId, items: [{ productId, quantity: 1 }] });
         } else {
-            item = cart.items.find(
+            const item = cart.items.find(
                 item => item.productId.toString() === productId
             );
 
@@ -20,8 +19,6 @@ export const addToCart = async (req, res) => {
             } else {
                 cart.items.push({ productId, quantity: 1 });
             }
-
-            await cart.save();
         }
 
         await cart.save();
@@ -29,40 +26,73 @@ export const addToCart = async (req, res) => {
             message: 'Item added to cart',
             cart
         });
-    } 
-    catch (error) {
-        res.status(500).json({ message: 'Server error' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-}
+};
 
-//remove item from cart
-export const removeFromCart = async (req, res) => {
+//remove cart items
+export const removeItem = async (req, res) => {
     try {
         const { userId, productId } = req.body;
+
         const cart = await Cart.findOne({ userId });
+
         if (!cart) {
             return res.status(404).json({ message: 'Cart not found' });
         }
 
-        cart.items = cart.items.filter(
-            item => item.productId.toString() !== productId
+        const item = cart.items.find(
+            item => item.productId.toString() === productId
         );
+
+        if (!item) {
+            return res.status(404).json({
+                message: 'Item not found in cart'
+            });
+        }
+
+        item.quantity -= 1;
+
+        if (item.quantity <= 0) {
+            cart.items = cart.items.filter(
+                item => item.productId.toString() !== productId
+            );
+        }
 
         await cart.save();
         res.json({
             message: 'Item removed from cart',
             cart
         });
+
     }
-    catch (error) {       
-        res.status(500).json({ message: 'Server error' });
+    catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-}
+};
+
+//get cart for a user
+export const getCart = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+        res.json(cart);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 
 //update item quantity in cart
 export const updateQuantity = async (req, res) => {
     try {
         const { userId, productId, quantity } = req.body;
+
         const cart = await Cart.findOne({ userId });
 
         if (!cart) {
@@ -78,31 +108,12 @@ export const updateQuantity = async (req, res) => {
         }
 
         item.quantity = quantity;
-
         await cart.save();
         res.json({
             message: 'Item quantity updated',
             cart
         });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-    catch (error) {
-        res.status(500).json({ message: 'Server error' });
-    }
-}
-
-//get cart by user id
-export const getCart = async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
-
-        if (!cart) {
-            return res.status(404).json({ message: 'Cart not found' });
-        }
-        res.json({ cart });
-    }
-    catch (error) {
-        res.status(500).json({ message: 'Server error' });
-    }
-}
-
+};
