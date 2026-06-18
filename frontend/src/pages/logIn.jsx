@@ -24,8 +24,10 @@ export default function LogIn() {
     try {
       const response = await api.post("/auth/logIn", formData);
 
+      console.log("LOGIN RESPONSE:", response.data);   // Debugging log
+
       //save token and userId to localStorage
-      localStorage.setItem("userId", response.data.userId);
+      localStorage.setItem("userId", response.data.user.userId);
       localStorage.setItem("token", response.data.token);
 
       setMsg(response.data.message);

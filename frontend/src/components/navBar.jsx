@@ -12,7 +12,7 @@ export default function NavBar() {
             if ( !userId) return setCartCount(0);
             try {
                 const response = await api.get(`/cart/${userId}`);
-                const totalItems = response.data.items.reduce((total, item) => total + item.quantity, 0);
+                const totalItems = response.data.cart.items.reduce((total, item) => total + item.quantity, 0);
                 setCartCount(totalItems);
             } 
             catch (err) {
@@ -38,13 +38,12 @@ export default function NavBar() {
 
             <div className="flex items-center space-x-4">
                 <Link to="/cart" className="nav-link">
-                {
-                    cartCount > 0 && (
+                    Cart
+                    {cartCount > 0 && (
                         <span className="ml-1 text-sm bg-red-500 rounded-full px-2 py-0.5">
                             {cartCount}
-                        </span> 
-                    )
-                }
+                        </span>
+                    )}
                 </Link>
 
                 {

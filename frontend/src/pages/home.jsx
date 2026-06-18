@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
-import { Link } from "react-router";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -24,6 +23,10 @@ export default function Home() {
 
   const addToCart = async (productId) => {
     const userId = localStorage.getItem("userId");
+
+    console.log("userId:", userId);
+    console.log("productId:", productId);
+
     if (!userId) {
       alert("Please log in to add items to your cart.");
       return;
@@ -32,7 +35,7 @@ export default function Home() {
     try {
       const response = await api.post(`/cart/add`, { userId, productId });
       const total = response.data.cart.items.reduce(
-        (sum, item) => sum * item.quantity + item.quantity,
+        (sum, item) => sum + item.quantity,
         0,
       );
 
@@ -79,6 +82,12 @@ export default function Home() {
                 />
                 <h2 className="text-lg font-bold">{product.title}</h2>
                 <p className="text-gray-600">${product.price}</p>
+                <button
+                  onClick={() => addToCart(product._id)}
+                  className="mt-4 bg-gray-800 text-white px-4 py-2 rounded"
+                >
+                  Add to Cart
+                </button>
             </div>
         ))
         }

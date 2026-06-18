@@ -1,9 +1,22 @@
-import Cart from '../models/Cart.js';
+import mongoose from 'mongoose';
+import Cart from '../models/cart.js';
+import Product from '../models/product.js';
+
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 //add item to cart
 export const addToCart = async (req, res) => {
     try {
         const { userId, productId } = req.body;
+
+        if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
+            return res.status(400).json({ message: 'Invalid user or product ID' });
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
 
         let cart = await Cart.findOne({ userId });
 
@@ -35,6 +48,10 @@ export const addToCart = async (req, res) => {
 export const removeItem = async (req, res) => {
     try {
         const { userId, productId } = req.body;
+
+        if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
+            return res.status(400).json({ message: 'Invalid user or product ID' });
+        }
 
         const cart = await Cart.findOne({ userId });
 
@@ -76,12 +93,17 @@ export const removeItem = async (req, res) => {
 export const getCart = async (req, res) => {
     try {
         const { userId } = req.params;
+
+        if (!isValidObjectId(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
         const cart = await Cart.findOne({ userId }).populate('items.productId');
 
         if (!cart) {
-            return res.status(404).json({ message: 'Cart not found' });
+            return res.json({ cart: { userId, items: [] } });
         }
-        res.json(cart);
+        res.json({ cart });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
@@ -92,6 +114,14 @@ export const getCart = async (req, res) => {
 export const updateQuantity = async (req, res) => {
     try {
         const { userId, productId, quantity } = req.body;
+
+        if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
+            return res.status(400).json({ message: 'Invalid user or product ID' });
+        }
+
+        if (!Number.isInteger(quantity) || quantity < 1) {
+            return res.status(400).json({ message: 'Quantity must be at least 1' });
+        }
 
         const cart = await Cart.findOne({ userId });
 
